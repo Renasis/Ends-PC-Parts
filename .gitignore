@@ -1,0 +1,15 @@
+*.zip
+*.log
+.dart_tool/
+build/
+.idea/
+*.iml
+local.properties
+key.properties
+*.jks
+*.keystore
+.firebase/
+node_modules/
+Thumbs.db
+*serviceAccount*.json
+*adminsdk*.json

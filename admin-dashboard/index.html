@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>PC Parts Store - Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/utilities.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+          crossorigin="anonymous"></script>
+</head>
+<body class="auth-locked">
+  <!-- Dashboard loading overlay -->
+  <div id="dashboard-loading" class="dashboard-loading" style="display:none;">
+    <div class="dashboard-loading-spinner"></div>
+    <p style="color:#64748b; font-size:14px;">Loading dashboard...</p>
+  </div>
+
+  <!-- Admin sign-in (shown until an admin is signed in) -->
+  <div id="auth-screen" class="auth-screen">
+    <p id="auth-loading" class="auth-loading">Checking sign-in...</p>
+    <form id="login-form" class="auth-card" hidden>
+      <h1>PC Parts Admin</h1>
+      <p class="auth-subtitle">Sign in with your admin account.</p>
+
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" autocomplete="username" required>
+
+      <label for="login-password">Password</label>
+      <div class="password-field">
+        <input type="password" id="login-password" autocomplete="current-password" required>
+        <button type="button" class="password-toggle" data-target="login-password" aria-label="Show password" aria-pressed="false">Show</button>
+      </div>
+
+      <p id="login-error" class="auth-error" role="alert"></p>
+      <button type="submit" id="login-submit" class="btn btn-primary">Sign in</button>
+    </form>
+  </div>
+  <header class="mobile-topbar">
+  <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <strong>PC Parts Admin</strong>
+</header>
+<div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+<aside class="sidebar" id="sidebar">
+  <h2>PC Parts Admin</h2>
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    <p class="menu-group">Overview</p>
+    <button type="button" class="menu-item staff-only" data-tab="staff-home">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/></svg>
+      <span>Overview</span>
+    </button>
+    <button type="button" class="menu-item active" data-tab="dashboard" aria-current="page">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="reports">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>Sales Reports</span>
+    </button>
+    <p class="menu-group">Sales</p>
+    <button type="button" class="menu-item" data-tab="orders">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+      <span>Orders</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="verification">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4"/></svg>
+      <span>Verify Payments</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="returns">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.7 3M3 4v5h5"/></svg>
+      <span>Returns</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="promos">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L2 12V2h10l8.6 8.6a2 2 0 010 2.8zM7 7h.01"/></svg>
+      <span>Promo Codes</span>
+    </button>
+    <p class="menu-group">Catalog</p>
+    <button type="button" class="menu-item" data-tab="products">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3.3 7.5L12 12.5l8.7-5M12 22V12.5"/></svg>
+      <span>Products</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="inventory">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/></svg>
+      <span>Inventory</span>
+    </button>
+    <p class="menu-group">Customers</p>
+    <button type="button" class="menu-item" data-tab="customers">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg>
+      <span>Customers</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="chats">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>Chats</span>
+      <span id="chats-unread-badge" class="menu-badge" hidden>0</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="reviews">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+      <span>Reviews</span>
+    </button>
+    <p class="menu-group">System</p>
+    <button type="button" class="menu-item" data-tab="settings">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+      <span>Store Settings</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="team">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6"/></svg>
+      <span>Team</span>
+    </button>
+    <button type="button" class="menu-item" data-tab="logs">
+      <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      <span>Activity Logs</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <p id="admin-email" class="admin-email"></p>
+    <p><span id="admin-role" class="role-pill admin"></span></p>
+    <button type="button" id="order-alerts-btn" class="btn btn-secondary" aria-pressed="true">🔔 Order alerts: On</button>
+    <button type="button" id="logout-btn" class="btn btn-secondary">Sign out</button>
+  </div>
+</aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content" id="main-content">
+
+    <!-- STAFF OVERVIEW (staff only; admins use the Dashboard) -->
+    <div id="staff-home-tab" class="tab-content">
+      <h1>Today's Work</h1>
+      <p class="page-subtitle">What needs attention right now. Click a card to open it.</p>
+
+      <div class="metrics-grid metric-grid">
+        <button type="button" class="card metric-card sh-card" data-go="orders">
+          <p class="metric-label">Pending Orders</p>
+          <h2 class="metric-value" id="sh-pending">0</h2>
+        </button>
+        <button type="button" class="card metric-card sh-card" data-go="verification">
+          <p class="metric-label">Payments to Verify</p>
+          <h2 class="metric-value metric-blue" id="sh-verify">0</h2>
+        </button>
+        <button type="button" class="card metric-card sh-card" data-go="returns">
+          <p class="metric-label">Return Requests</p>
+          <h2 class="metric-value" id="sh-returns" style="color: #b45309;">0</h2>
+          <p class="sh-sub" id="sh-returns-sub"></p>
+        </button>
+        <button type="button" class="card metric-card sh-card" data-go="chats">
+          <p class="metric-label">Unread Chats</p>
+          <h2 class="metric-value" id="sh-chats">0</h2>
+        </button>
+        <button type="button" class="card metric-card sh-card" data-go="inventory">
+          <p class="metric-label">Low Stock (5 or fewer)</p>
+          <h2 class="metric-value" id="sh-lowstock" style="color: #b45309;">0</h2>
+        </button>
+      </div>
+
+      <div class="card">
+        <h3 class="mb-16">Items to restock</h3>
+        <table>
+          <thead><tr><th>Product</th><th>Stock</th></tr></thead>
+          <tbody id="sh-lowstock-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TEAM TAB (admins only) -->
+    <div id="team-tab" class="tab-content">
+      <h1>Team</h1>
+      <p class="page-subtitle">Create sign-in accounts for the people who run the store. Admins can do everything. Staff can use Orders, Verify Payments, Returns, Products (names, descriptions and pictures only), Inventory, Customers (view only), Chats and Reviews.</p>
+
+      <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 style="margin-bottom: 6px;">Add a Team Member</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">Share the email and password with the person. They can change the password later with "Forgot password" in the customer app or from the Reset button below.</p>
+
+        <form id="team-form" autocomplete="off">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="team-name">Full name</label>
+            <input type="text" id="team-name" maxlength="60" required placeholder="e.g., Maria Santos">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="team-email">Email</label>
+            <input type="email" id="team-email" maxlength="120" required placeholder="name@example.com">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="team-password">Password (at least 8 characters)</label>
+            <div class="password-field" style="margin-bottom: 0;">
+              <input type="password" id="team-password" minlength="8" maxlength="64" required autocomplete="new-password">
+              <button type="button" class="password-toggle" data-target="team-password" aria-label="Show password" aria-pressed="false">Show</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="team-role">Role</label>
+            <select id="team-role">
+              <option value="staff">Staff (Orders, Payments, Returns, Products, Inventory, Customers, Chats, Reviews)</option>
+              <option value="admin">Admin (full access)</option>
+            </select>
+          </div>
+          <button type="submit" id="team-submit" class="btn btn-primary">Create Account</button>
+          <p id="team-status" role="status" style="font-size: 13px; margin-top: 10px;"></p>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 12px;">Current Team</h3>
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th>Added</th><th></th></tr>
+          </thead>
+          <tbody id="team-table-body">
+            <tr><td colspan="5" style="text-align:center; color:#64748b;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACTIVITY LOGS TAB -->
+<div id="logs-tab" class="tab-content">
+  <h1>Administrative Activity Logs</h1>
+  <p class="page-subtitle">Audit trail of critical store operations and admin actions.</p>
+
+  <div class="card">
+    <div class="toolbar-row">
+      <h3 class="m-0">System Actions Audit Trail</h3>
+      <div class="row-gap-8">
+        <input class="toolbar-input" type="text" id="logs-search-input" placeholder="Search action or details...">
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Action Type</th>
+          <th>Description / Details</th>
+        </tr>
+      </thead>
+      <tbody id="logs-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+    <!-- REPORTS TAB -->
+<div id="reports-tab" class="tab-content">
+  <h1>Sales Reports & Analytics</h1>
+  <p class="page-subtitle">Filter store transactions and revenue metrics by custom date ranges.</p>
+
+  <!-- Date Filter & Metrics Card -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <h3 class="m-0">Date Range Filter</h3>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div>
+          <label style="font-size: 12px; color: #64748b; display: block; margin-bottom: 2px;">Start Date</label>
+          <input type="date" id="report-start-date" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+        </div>
+        <div>
+          <label style="font-size: 12px; color: #64748b; display: block; margin-bottom: 2px;">End Date</label>
+          <input type="date" id="report-end-date" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+        </div>
+        <div style="align-self: flex-end; display: flex; gap: 6px;">
+          <button class="btn btn-primary" style="padding: 7px 14px; font-size: 13px;" onclick="window.applyDateFilterReport()">Filter</button>
+          <button class="btn btn-secondary" style="padding: 7px 14px; font-size: 13px;" onclick="window.resetDateFilterReport()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Metrics for Filtered Range -->
+    <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p style="color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Filtered Revenue</p>
+        <h2 id="report-stat-revenue" style="font-size: 22px; color: #1e293b; margin-top: 4px;">₱0.00</h2>
+      </div>
+      <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p style="color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Filtered Orders</p>
+        <h2 id="report-stat-orders" style="font-size: 22px; color: #1e293b; margin-top: 4px;">0</h2>
+      </div>
+      <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p style="color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Completed Orders</p>
+        <h2 id="report-stat-completed" style="font-size: 22px; color: #166534; margin-top: 4px;">0</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtered Transactions Table -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 class="m-0">Transactions in Range</h3>
+      <button class="btn btn-secondary" onclick="window.exportReportToCSV()" style="font-size: 12px; padding: 6px 12px;">Export CSV</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Recipient</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="reports-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+    <!-- LOW STOCK NOTIFICATION BANNER CONTAINER -->
+    <div id="stock-alert-banner" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 18px;">⚠️</span>
+        <div>
+          <h4 style="margin: 0; font-size: 14px; color: #92400e;">Inventory Stock Warning</h4>
+          <p id="stock-alert-text" style="margin: 2px 0 0 0; font-size: 13px; color: #b45309;">Some PC parts are running low or out of stock.</p>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="switchTab('inventory')">View Inventory</button>
+    </div>
+
+    <!-- DASHBOARD TAB -->
+    <div id="dashboard-tab" class="tab-content active">
+      <h1>Overview & Analytics</h1>
+      <p class="page-subtitle">Real-time sales performance and system metrics.</p>
+
+      <!-- TOP SUMMARY METRICS -->
+      <div class="metrics-grid metric-grid">
+        <div class="card metric-card">
+          <p class="metric-label">Total Sales Revenue</p>
+          <h2 class="metric-value" id="stat-revenue">₱0.00</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Total Orders</p>
+          <h2 class="metric-value" id="stat-orders">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Pending Shipments</p>
+          <h2 class="metric-value metric-blue" id="stat-pending">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Active PC Parts</p>
+          <h2 id="stat-products" style="font-size: 26px; color: #166534; margin-top: 6px;">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Today's Sales</p>
+          <h2 class="metric-value" id="stat-today">₱0.00</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Avg. Order Value</p>
+          <h2 class="metric-value" id="stat-aov">₱0.00</h2>
+        </div>
+
+        <div class="card metric-card" role="button" tabindex="0" style="cursor: pointer;" onclick="switchTab('verification')" onkeydown="if(event.key==='Enter')switchTab('verification')">
+          <p class="metric-label">Payments to Verify</p>
+          <h2 class="metric-value metric-blue" id="stat-verify">0</h2>
+        </div>
+
+        <div class="card metric-card" role="button" tabindex="0" style="cursor: pointer;" onclick="switchTab('inventory')" onkeydown="if(event.key==='Enter')switchTab('inventory')">
+          <p class="metric-label">Low / Out of Stock</p>
+          <h2 class="metric-value" id="stat-lowstock" style="color: #b45309;">0</h2>
+        </div>
+      </div>
+
+      <!-- VISUAL ANALYTICS CHARTS -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="card mb-0">
+          <h3 class="chart-title">Order Status Distribution</h3>
+          <div class="chart-box">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card mb-0">
+          <h3 class="chart-title">Inventory by Hardware Category</h3>
+          <div class="chart-box">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card mb-0">
+          <h3 class="chart-title">Top Products by Revenue</h3>
+          <div class="chart-box">
+            <canvas id="topProductsChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card mb-0" style="grid-column: 1 / -1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <h3 class="chart-title" id="revenue-chart-title">Daily Revenue (Last 7 Days)</h3>
+            <select id="revenue-range" aria-label="Revenue date range" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+              <option value="7">Last 7 days</option>
+              <option value="14">Last 14 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
+          </div>
+          <div class="chart-box">
+            <canvas id="dailyRevenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS + LOW STOCK -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="card mb-0">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="chart-title">Recent Orders</h3>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="switchTab('orders')">View all</button>
+          </div>
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Total</th></tr></thead>
+            <tbody id="recent-orders-body"></tbody>
+          </table>
+        </div>
+
+        <div class="card mb-0">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="chart-title">Needs Restocking</h3>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="switchTab('inventory')">Inventory</button>
+          </div>
+          <table>
+            <thead><tr><th>Product</th><th>Stock</th></tr></thead>
+            <tbody id="low-stock-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORE SETTINGS TAB -->
+    <div id="settings-tab" class="tab-content">
+      <h1>Store Settings</h1>
+      <p class="page-subtitle">Set shipping, delivery and the payment methods customers see at checkout in the mobile app.</p>
+
+      <!-- Shipping fee -->
+      <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 style="margin-bottom: 6px;">Shipping Fee</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">The standard fee added to every order. Enter 0 for free shipping. Provinces listed below can have their own fee.</p>
+
+        <form id="shipping-form">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="shipping-fee-input">Standard shipping fee (₱)</label>
+            <input type="number" id="shipping-fee-input" min="0" step="0.01" required placeholder="150.00">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="free-shipping-min-input">Free shipping when the items total at least (₱)</label>
+            <input type="number" id="free-shipping-min-input" min="0" step="0.01" placeholder="Leave empty or 0 for no free shipping">
+            <small style="color: #64748b;">Counts the items only, before any voucher discount.</small>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="auto-complete-days-input">Auto-complete shipped orders (days after the estimated delivery)</label>
+            <input type="number" id="auto-complete-days-input" min="0" max="60" step="1" placeholder="3">
+            <small style="color: #64748b;">If the customer never taps "Order received", the order becomes Completed this many days after its estimated delivery date. Default is 3.</small>
+          </div>
+          <p id="shipping-fee-current" style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Loading...</p>
+          <button type="submit" class="btn btn-primary">Save Shipping Settings</button>
+          <p id="shipping-status" role="status" style="font-size: 13px; margin-top: 10px;"></p>
+        </form>
+      </div>
+
+      <!-- Province fees -->
+      <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 style="margin-bottom: 6px;">Fees by Province</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">A different shipping fee for a province. Any province not listed pays the standard fee. The name must match what customers pick as their province (capital letters and spaces do not matter).</p>
+
+        <form id="province-fee-form" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px;">
+          <div class="form-group" style="flex: 2 1 160px; margin: 0;">
+            <label for="province-name-input">Province</label>
+            <input type="text" id="province-name-input" maxlength="60" required placeholder="e.g., Cebu">
+          </div>
+          <div class="form-group" style="flex: 1 1 100px; margin: 0;">
+            <label for="province-fee-input">Fee (₱)</label>
+            <input type="number" id="province-fee-input" min="0" step="0.01" required placeholder="250.00">
+          </div>
+          <button type="submit" class="btn btn-primary">Save Province Fee</button>
+        </form>
+        <p id="province-status" role="status" style="font-size: 13px; margin-bottom: 10px;"></p>
+
+        <table>
+          <thead>
+            <tr><th>Province</th><th>Fee</th><th></th></tr>
+          </thead>
+          <tbody id="province-fees-table-body">
+            <tr><td colspan="3" style="text-align:center; color:#64748b;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- App update -->
+      <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 style="margin-bottom: 6px;">App Update</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">When you upload a new APK, publish it here. Customers who open the app and have an older version see an "Update available" message with your download link.</p>
+
+        <form id="app-update-form">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="app-update-build">Build number</label>
+            <input type="number" id="app-update-build" min="1" step="1" required placeholder="e.g., 2">
+            <small style="color: #64748b;">The number after the + in <code>version:</code> in pubspec.yaml (1.1.0+<b>2</b> means build 2). It must be higher than the build customers already have.</small>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="app-update-version">Version name (shown to customers)</label>
+            <input type="text" id="app-update-version" maxlength="20" placeholder="e.g., 1.1.0">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="app-update-url">APK download link</label>
+            <input type="url" id="app-update-url" required placeholder="https://drive.google.com/...">
+            <small style="color: #64748b;">Google Drive link set to "Anyone with the link". Use the link to the APK file, or to a folder that holds only the newest APK.</small>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="app-update-message">What's new (optional)</label>
+            <textarea id="app-update-message" rows="3" maxlength="300" placeholder="e.g., Free shipping, province rates and an Order received button."></textarea>
+          </div>
+          <p id="app-update-current" style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Loading...</p>
+          <button type="submit" class="btn btn-primary">Publish Update</button>
+          <button type="button" class="btn btn-secondary" id="app-update-clear">Stop Showing Update</button>
+          <p id="app-update-status" role="status" style="font-size: 13px; margin-top: 10px;"></p>
+        </form>
+      </div>
+
+      <!-- Payment methods -->
+      <div class="card" style="max-width: 600px;">
+        <h3 id="pm-form-title" style="margin-bottom: 6px;">Add Payment Method</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">Cash on Delivery is always available. Add e-wallets or banks here. Customers see the account details and QR code, then send their payment.</p>
+
+        <form id="payment-method-form">
+          <div class="form-group mb-16">
+            <label for="pm-name">Method name</label>
+            <input type="text" id="pm-name" required placeholder="e.g., GCash, Maya, BPI Bank Transfer">
+          </div>
+
+          <div class="form-group mb-16">
+            <label for="pm-bank">Bank name (only for banks)</label>
+            <input type="text" id="pm-bank" placeholder="e.g., Bank of the Philippine Islands">
+          </div>
+
+          <div class="form-group mb-16">
+            <label for="pm-account-name">Account name</label>
+            <input type="text" id="pm-account-name" required placeholder="e.g., Juan Dela Cruz">
+          </div>
+
+          <div class="form-group mb-16">
+            <label for="pm-account-number">Mobile number / account number</label>
+            <input type="text" id="pm-account-number" required placeholder="e.g., 09123456789">
+          </div>
+
+          <div class="form-group mb-16">
+            <label for="pm-qr-file">QR code image (optional)</label>
+            <input type="file" id="pm-qr-file" accept="image/*">
+            <p style="font-size: 12px; color: #64748b; margin-top: 4px;">Resized automatically. When editing, leave empty to keep the current QR.</p>
+            <div id="pm-qr-preview" style="margin-top: 10px;"></div>
+          </div>
+
+          <button type="submit" id="pm-save-btn" class="btn btn-primary">Save Payment Method</button>
+          <button type="button" id="pm-cancel-btn" class="btn btn-secondary" style="margin-left: 8px;" hidden>Cancel</button>
+          <p id="pm-status" role="status" style="font-size: 13px; margin-top: 10px;"></p>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <h3 class="mb-16">Active Payment Methods</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Account Name</th>
+              <th>Account / Mobile Number</th>
+              <th>QR Code</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="payment-methods-table-body"><tr><td colspan="5" style="text-align:center; color:#64748b;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div id="products-tab" class="tab-content">
+      <h1>Product Management</h1>
+      <p class="page-subtitle">Add, edit, or manage catalog items and stock levels.</p>
+      <p class="staff-only staff-note">You can fix a product's name, category, description and pictures. An admin changes prices, variants and new or removed products; stock is adjusted in Inventory.</p>
+      <div class="repair-bar admin-only">
+        <span>Some products can't be ordered if their price or stock is saved as text.</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="window.repairProductData()">Fix product data</button>
+      </div>
+
+      <!-- Add / Edit Product Form Card -->
+      <div class="card">
+        <h3 class="mb-16" id="form-title">Add New Product</h3>
+        <form id="product-form">
+          <input type="hidden" id="product-id">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="p-name" required placeholder="e.g., Mechanical Keyboard">
+            </div>
+
+            <div class="form-group">
+              <label>Category</label>
+              <select id="p-category" required>
+                <option value="">Select PC Part Category</option>
+                <option value="Processors">Processors (CPU)</option>
+                <option value="Graphics">Graphics Cards (GPU)</option>
+                <option value="Memory">Memory (RAM)</option>
+                <option value="Storage">Storage (SSD / HDD)</option>
+                <option value="Motherboards">Motherboards</option>
+                <option value="Power Supply">Power Supply (PSU)</option>
+                <option value="Cases">PC Cases</option>
+                <option value="Cooling">Cooling & Fans</option>
+                <option value="Accessories">Accessories & Peripherals</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Price (₱)</label>
+              <input type="number" step="0.01" id="p-price" required placeholder="3500.00">
+            </div>
+
+            <div class="form-group">
+              <label>Stock Quantity</label>
+              <input type="number" id="p-stock" required min="0" placeholder="10">
+            </div>
+            
+            <div class="form-group full">
+              <label>Description</label>
+              <textarea id="p-desc" rows="2" placeholder="Item specs..."></textarea>
+            </div>
+            
+            <!-- Variant Options (optional) -->
+            <div class="form-group full">
+              <label style="display: block; font-weight: 600; margin-bottom: 8px;">Variant Options</label>
+              <p class="staff-only staff-note" style="margin: 0 0 8px 0;">Only an admin can change variants.</p>
+              <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0;">Optional: add size/color variants with their own stock. All variants sell at the product price. Leave empty for a single product.</p>
+              <div id="variant-rows" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; background: #f8fafc;">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #64748b;">
+                  <div style="flex: 2;">Variant Label (e.g., Size: Large)</div>
+                  <div style="flex: 1;">Stock</div>
+                  <div style="flex: 1;">SKU</div>
+                  <div style="width: 32px;">&nbsp;</div>
+                </div>
+                <div id="variant-list"></div>
+                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; margin-top: 8px;" onclick="window.addVariantRow()">+ Add Variant</button>
+              </div>
+            </div>
+            
+            <div class="form-group full">
+              <label>Product Image</label>
+              <input type="file" id="p-image-file" accept="image/*" onchange="window.handleImageUpload(event)">
+              <input type="hidden" id="p-image">
+              <div id="image-preview-container" style="margin-top: 8px;"></div>
+            </div>
+
+            <!-- Additional Gallery Images (optional) -->
+            <div class="form-group full">
+              <label style="display: block; font-weight: 600; margin-bottom: 8px;">Additional Gallery Images</label>
+              <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0;">Upload extra product photos. They appear in a gallery on the product page.</p>
+              <input type="file" id="p-gallery-files" accept="image/*" multiple onchange="window.handleGalleryUpload(event)">
+              <div id="gallery-preview-container" style="margin-top: 8px;">
+                <span style="font-size:12px; color:#64748b;">No gallery images yet.</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <button type="submit" class="btn btn-primary" id="save-btn">Save Product</button>
+            <button type="button" class="btn btn-secondary" id="cancel-btn" style="display:none; margin-left: 8px;" onclick="window.resetProductFormModule()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Catalog Table Card -->
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Catalog Inventory</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="p-search-input" placeholder="Search product...">
+            <select class="toolbar-input" id="p-filter-category">
+              <option value="ALL">All Categories</option>
+              <option value="Processors">Processors</option>
+              <option value="Graphics">Graphics Cards</option>
+              <option value="Memory">Memory</option>
+              <option value="Storage">Storage</option>
+              <option value="Motherboards">Motherboards</option>
+              <option value="Power Supply">Power Supply</option>
+              <option value="Cases">PC Cases</option>
+              <option value="Cooling">Cooling</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS TAB -->
+    <div id="orders-tab" class="tab-content">
+      <h1>Order Management</h1>
+      <p class="page-subtitle">Monitor customer orders, track fulfillment status, and export transaction logs.</p>
+      
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Customer Transactions</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="o-search-input" placeholder="Search order / name..." aria-label="Search orders">
+            <select class="toolbar-input" id="o-filter-status" aria-label="Filter orders by status">
+              <option value="ALL">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipping">Shipping</option>
+              <option value="Completed">Completed</option>
+              <option value="Payment Rejected">Payment Rejected</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="Returned">Returned</option>
+            </select>
+            <button class="btn btn-secondary" onclick="window.exportOrdersToCSV()" aria-label="Export orders to CSV" style="font-size: 12px; padding: 6px 12px;">Export CSV</button>
+          </div>
+
+          <!-- Bulk Status Change -->
+          <div id="bulk-order-actions" style="display:none; margin-top: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; border: 1px solid #cbd5e1; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <span style="font-weight: 600; color: #334155; font-size: 13px;">Apply to selected orders:</span>
+            <select id="bulk-status-select" aria-label="Status to apply to selected orders" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+              <option value="Processing">Processing</option>
+              <option value="Shipping">Shipping</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button type="button" class="btn btn-primary" onclick="window.bulkUpdateOrderStatus()" aria-label="Apply selected status to orders" style="font-size: 12px; padding: 6px 14px;">Apply Status</button>
+            <button type="button" class="btn btn-secondary" onclick="window.clearBulkSelection()" aria-label="Clear order selection" style="font-size: 12px; padding: 6px 14px;">Clear Selection</button>
+            <span id="bulk-selected-count" style="font-size: 12px; color: #64748b;" aria-live="polite">0 selected</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" id="bulk-select-all" style="width:16px; height:16px;" onchange="window.toggleBulkSelectAll()"></th>
+              <th>Order ID</th>
+              <th>Recipient</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RETURNS TAB -->
+    <div id="returns-tab" class="tab-content">
+      <h1>Returns Management</h1>
+      <p class="page-subtitle">Review each return request (reason and photo), approve or decline it, then send the refund to the account the customer gave.</p>
+
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Return Requests</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="r-search-input" placeholder="Search order / name..." aria-label="Search returns">
+            <select class="toolbar-input" id="r-filter-status" aria-label="Filter returns by status">
+              <option value="ALL">All Returns</option>
+              <option value="REQUESTED">Needs Review</option>
+              <option value="PENDING_REFUND">Approved - Refund to Send</option>
+              <option value="REFUNDED">Refunded</option>
+              <option value="REJECTED">Declined</option>
+            </select>
+          </div>
+        </div>
+        <p id="returns-summary" style="margin:8px 0 12px; font-size:13px; color:#64748b;"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Recipient</th>
+              <th>Requested</th>
+              <th>Total</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="returns-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INVENTORY TAB -->
+    <div id="inventory-tab" class="tab-content">
+      <h1>Inventory Management</h1>
+      <p class="page-subtitle">Monitor stock levels, track total hardware asset value, and perform quick stock adjustments.</p>
+
+      <!-- Inventory Metric Cards -->
+      <div class="metrics-grid metric-grid">
+        <div class="card metric-card">
+          <p class="metric-label">Total Stock Valuation</p>
+          <h2 class="metric-value" id="inv-stat-valuation">₱0.00</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Low Stock Alert (≤5)</p>
+          <h2 id="inv-stat-low" style="font-size: 26px; color: #d97706; margin-top: 6px;">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Out of Stock Items</p>
+          <h2 id="inv-stat-out" style="font-size: 26px; color: #dc2626; margin-top: 6px;">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Total Catalog Units</p>
+          <h2 class="metric-value metric-blue" id="inv-stat-total">0</h2>
+        </div>
+      </div>
+
+      <!-- Stock Control Table -->
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Stock Control & Valuation</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="inv-search-input" placeholder="Search item...">
+            <select class="toolbar-input" id="inv-filter-status">
+              <option value="ALL">All Stock Statuses</option>
+              <option value="LOW">Low Stock Only</option>
+              <option value="OUT">Out of Stock Only</option>
+              <option value="IN_STOCK">Well Stocked (>5)</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Unit Price</th>
+              <th>Status</th>
+              <th>Asset Value</th>
+              <th>Quick Stock Adjust</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS TAB -->
+    <div id="customers-tab" class="tab-content">
+      <h1>Customer Management</h1>
+      <p class="page-subtitle">View registered customer accounts, contact details, and lifetime order histories.</p>
+
+      <!-- Customer Summary Metrics -->
+      <div class="metrics-grid metric-grid">
+        <div class="card metric-card">
+          <p class="metric-label">Registered Accounts</p>
+          <h2 class="metric-value" id="cust-stat-total">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Active Buyers</p>
+          <h2 class="metric-value metric-blue" id="cust-stat-buyers">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Average Customer Spend</p>
+          <h2 id="cust-stat-avg" style="font-size: 26px; color: #166534; margin-top: 6px;">₱0.00</h2>
+        </div>
+      </div>
+
+      <!-- Customer Directory Table Card -->
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Customer Directory</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="cust-search-input" placeholder="Search name or email...">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Email Address</th>
+              <th>Phone Number</th>
+              <th>Completed Orders</th>
+              <th>Total Lifetime Spend</th>
+              <th>Privacy Policy</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="customers-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHATS TAB -->
+    <div id="chats-tab" class="tab-content">
+      <h1>Customer Support & Chat</h1>
+      <p class="page-subtitle">Monitor and reply to live support or customer chat conversations from the mobile app.</p>
+
+      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 20px; height: calc(100vh - 180px); min-height: 500px;">
+        
+        <!-- Conversations List Card -->
+        <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px;">
+          <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; color: #1e293b;">Conversations</h3>
+          <div id="chat-threads-list" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px;">
+            <!-- Dynamically populated thread list -->
+          </div>
+        </div>
+
+        <!-- Active Chat Conversation Box -->
+        <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+          <div id="chat-header" style="padding: 16px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #1e293b;">
+            Select a conversation to start chatting
+          </div>
+
+          <div id="chat-messages-container" style="flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #f1f5f9;">
+            <div style="text-align: center; color: #64748b; margin-top: auto; margin-bottom: auto; font-size: 14px;">No thread selected</div>
+          </div>
+
+          <div style="padding: 12px; border-top: 1px solid #e2e8f0; background: #ffffff;">
+            <form id="admin-chat-form" style="display: flex; gap: 8px; margin: 0;" onsubmit="window.sendAdminChatMessage(event)">
+              <input type="text" id="admin-chat-input" placeholder="Type a message to customer..." required maxlength="1000" style="flex: 1; padding: 10px 14px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px;">
+              <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Send</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div id="reviews-tab" class="tab-content">
+      <h1>Customer Reviews & Ratings</h1>
+      <p class="page-subtitle">Monitor product feedback and moderate customer ratings submitted from the mobile app.</p>
+
+      <!-- Review Summary Metrics -->
+      <div class="metrics-grid metric-grid">
+        <div class="card metric-card">
+          <p class="metric-label">Total Reviews</p>
+          <h2 class="metric-value" id="rev-stat-total">0</h2>
+        </div>
+
+        <div class="card metric-card">
+          <p class="metric-label">Average Store Rating</p>
+          <h2 class="metric-value metric-blue" id="rev-stat-avg">0.0 / 5.0</h2>
+        </div>
+      </div>
+
+      <!-- Reviews Table Card -->
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Product Feedback</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="rev-search-input" placeholder="Search product or customer...">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Customer</th>
+              <th>Rating</th>
+              <th>Review Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reviews-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAYMENT VERIFICATION TAB -->
+    <div id="verification-tab" class="tab-content">
+      <h1>Manual Payment Verification</h1>
+      <p class="page-subtitle">Review customer-submitted payment slips and proofs of transfer for mobile app orders. You can also verify a payment from the order itself in the Orders tab.</p>
+
+      <!-- Metrics Grid -->
+      <div class="metrics-grid metric-grid">
+        <div class="card metric-card">
+          <p class="metric-label">Pending Verifications</p>
+          <h2 id="verify-stat-pending" style="font-size: 26px; color: #d97706; margin-top: 6px;">0</h2>
+        </div>
+      </div>
+
+      <!-- Pending Payments Table Card -->
+      <div class="card">
+        <div class="toolbar-row">
+          <h3 class="m-0">Submitted Payment Proofs</h3>
+          <div class="row-gap-8">
+            <input class="toolbar-input" type="text" id="verify-search-input" placeholder="Search order ID or customer...">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Reference No. / Details</th>
+              <th>Proof of Payment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="verification-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROMO CODES TAB -->
+    <div id="promos-tab" class="tab-content">
+      <h1>Promo Code & Discount Management</h1>
+      <p class="page-subtitle">Create and manage discount vouchers that mobile app users can apply during checkout.</p>
+
+      <!-- Add Promo Code Form Card -->
+      <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 class="mb-16">Create New Promo Code</h3>
+        <form id="promo-form" onsubmit="window.savePromoCode(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Promo Code</label>
+              <input type="text" id="promo-code" required placeholder="e.g., PCPARTS10" style="text-transform: uppercase;">
+            </div>
+
+            <div class="form-group">
+              <label>Discount Type</label>
+              <select id="promo-type" required>
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Amount (₱)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Discount Value</label>
+              <input type="number" step="0.01" id="promo-value" required placeholder="10 or 150">
+            </div>
+
+            <div class="form-group">
+              <label>Minimum Spend (₱)</label>
+              <input type="number" step="0.01" id="promo-min-spend" placeholder="0.00" value="0">
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <button type="submit" class="btn btn-primary">Save Promo Code</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Active Promo Codes Table Card -->
+      <div class="card">
+        <h3 class="mb-16">Active Promo Codes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount Type</th>
+              <th>Value</th>
+              <th>Min. Spend</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="promos-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ORDER DETAILS MODAL -->
+  <div id="order-modal" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h2>Order Details <span id="modal-order-id" style="color: #64748b; font-size: 15px; font-weight: normal;"></span></h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-secondary" onclick="window.printOrderReceipt()" style="font-size:12px; padding:4px 10px;">Print / Save PDF</button>
+          <span class="close-btn" onclick="window.closeOrderModal()">&times;</span>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+          <h4 style="margin-bottom: 10px; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Customer & Delivery Profile</h4>
+          <p class="field-title"><strong>Recipient Name:</strong> <span id="modal-customer-name">N/A</span></p>
+          <p class="field-title"><strong>Contact / Email:</strong> <span id="modal-customer-contact">N/A</span></p>
+          <p class="field-title"><strong>Delivery Address:</strong> <span id="modal-customer-address">N/A</span></p>
+          <p style="font-size: 14px;"><strong>Payment Method:</strong> <span id="modal-payment-method">COD</span></p>
+        </div>
+
+        <!-- Payment verification (filled by verification.js) -->
+        <div id="modal-payment-card" style="display: none; margin-bottom: 20px;"></div>
+
+        <!-- Cancellation Notice Box -->
+        <div id="modal-cancellation-card" style="display: none; background: #fee2e2; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fca5a5;">
+          <h4 style="margin-bottom: 6px; color: #991b1b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Cancellation Notice</h4>
+          <p style="font-size: 14px; color: #7f1d1d; margin: 0 0 4px;"><strong>Cancelled by:</strong> <span id="modal-cancelled-by">Not recorded</span></p>
+          <p style="font-size: 14px; color: #7f1d1d; margin: 0;"><strong>Reason:</strong> <span id="modal-cancellation-reason">N/A</span></p>
+          <p id="modal-prior-rejection-row" style="font-size: 14px; color: #7f1d1d; margin: 4px 0 0; display: none;"><strong>Earlier payment rejection:</strong> <span id="modal-prior-rejection"></span></p>
+        </div>
+
+        <!-- Return Notice Box -->
+        <div id="modal-return-card" style="display: none; background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f59e0b;">
+          <h4 style="margin-bottom: 6px; color: #92400e; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Return Notice</h4>
+          <p style="font-size: 14px; color: #78350f; margin: 0;"><strong>Status:</strong> <span id="modal-return-status">N/A</span></p>
+          <p style="font-size: 14px; color: #78350f; margin: 0;"><strong>Reason:</strong> <span id="modal-return-reason">N/A</span></p>
+          <p style="font-size: 14px; color: #78350f; margin: 0;"><strong>Refund:</strong> <span id="modal-return-refund">N/A</span></p>
+          <p style="font-size: 14px; color: #78350f; margin: 0;"><strong>Send to:</strong> <span id="modal-return-destination">N/A</span></p>
+          <div id="modal-return-image" style="margin-top: 12px; display: none;"></div>
+          <div style="margin-top: 12px;" id="modal-return-actions">
+            <button id="modal-open-return-btn" type="button" onclick="window.openReturnReviewFromOrder()" style="background:#d97706;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer;">Open Return Review</button>
+          </div>
+        </div>
+
+        <!-- Shipping Notice Box -->
+        <div id="modal-shipping-card" style="display: none; background: #e0e7ff; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c7d2fe;">
+          <h4 style="margin-bottom: 6px; color: #3730a3; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Shipping Notice</h4>
+          <p style="font-size: 14px; color: #1e1b4b; margin: 0;"><strong>Carrier:</strong> <span id="modal-shipping-carrier">N/A</span></p>
+          <p style="font-size: 14px; color: #1e1b4b; margin: 0;"><strong>Tracking:</strong> <span id="modal-shipping-tracking">N/A</span></p>
+          <p style="font-size: 14px; color: #1e1b4b; margin: 0;"><strong>Shipped:</strong> <span id="modal-shipping-date">N/A</span></p>
+          <p style="font-size: 14px; color: #1e1b4b; margin: 0;"><strong>Est. Delivery:</strong> <span id="modal-shipping-est">N/A</span></p>
+        </div>
+
+        <!-- Admin Notes Box -->
+        <div id="modal-admin-notes-card" style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #cbd5e1;">
+          <h4 style="margin-bottom: 8px; color: #334155; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Admin Notes</h4>
+          <textarea id="modal-admin-notes" rows="3" placeholder="Add internal notes for this order..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-family: inherit;"></textarea>
+          <div style="margin-top: 8px; text-align: right;">
+            <button type="button" class="btn btn-secondary" onclick="window.saveOrderAdminNotes()" style="padding:6px 14px; font-size: 12px;">Save Notes</button>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 10px; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Ordered PC Parts</h4>
+        <table style="margin-bottom: 20px;">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="modal-items-tbody"></tbody>
+        </table>
+
+        <div style="text-align: right; font-size: 18px; font-weight: bold; color: #1e293b; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+          Grand Total: <span id="modal-grand-total" style="color: #2563eb;">₱0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY ITEM DETAILS MODAL (VIEW ONLY) -->
+  <div id="inventory-modal" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h2>Product Details <span id="inv-modal-category" style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:600; margin-left:8px;"></span></h2>
+        <span class="close-btn" onclick="window.closeInventoryModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
+          <div id="inv-modal-image-container" style="width: 120px; height: 120px; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; background: #f8fafc; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"></div>
+
+          <div style="flex: 1; min-width: 200px;">
+            <h3 id="inv-modal-name" style="font-size: 18px; color: #1e293b; margin-bottom: 10px;">Item Name</h3>
+            <p class="field-title"><strong>Unit Price:</strong> <span id="inv-modal-price" style="color: #166534; font-weight: 600;">₱0.00</span></p>
+            <p class="field-title"><strong>Current Stock:</strong> <span id="inv-modal-stock">0</span></p>
+            <p class="field-title"><strong>Total Asset Value:</strong> <span id="inv-modal-asset" style="color: #2563eb; font-weight: 600;">₱0.00</span></p>
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <h4 style="margin-bottom: 8px; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Product Description & Specifications</h4>
+          <p id="inv-modal-desc" style="font-size: 14px; color: #334155; line-height: 1.6; white-space: pre-wrap; margin: 0;">No description available for this item.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOCK ADJUSTMENT MODAL -->
+  <div id="stock-adjust-modal" class="modal">
+    <div class="modal-content card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2 id="adjust-modal-title">Adjust Stock</h2>
+        <span class="close-btn" onclick="window.closeStockAdjustModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <form id="stock-adjust-form">
+          <input type="hidden" id="adj-product-id">
+          
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Product</label>
+            <input type="text" id="adj-product-name" disabled style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; background: #f8fafc;">
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Current Stock</label>
+            <input type="text" id="adj-current-stock" disabled style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; background: #f8fafc;">
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Movement Type</label>
+            <div class="row-gap-8">
+              <button type="button" id="adj-btn-in" class="btn btn-success" style="flex: 1; padding: 10px; font-size: 13px;">📥 Stock In</button>
+              <button type="button" id="adj-btn-out" class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 13px;">📤 Stock Out</button>
+            </div>
+            <input type="hidden" id="adj-movement-type" value="in">
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Performed By</label>
+            <input type="text" id="adj-performed-by" value="admin" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Quantity</label>
+            <input type="number" id="adj-quantity" min="1" step="1" placeholder="Enter quantity" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Reason Category</label>
+            <select id="adj-category" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+              <option value="restock">Restock / Receive Stock</option>
+              <option value="sale">Sale / Order Fulfilled</option>
+              <option value="damaged">Damaged Item</option>
+              <option value="defective">Defective Item</option>
+              <option value="returned">Customer Return</option>
+              <option value="adjustment">Stock Adjustment</option>
+              <option value="lost">Lost / Missing</option>
+              <option value="found">Found / Extra Stock</option>
+            </select>
+          </div>
+
+          <div class="mb-16">
+            <label style="display: block; font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Reason / Notes</label>
+            <textarea id="adj-reason" rows="3" placeholder="e.g., Damaged during shipping, customer returned item, restock from supplier..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 16px; border-top: 1px solid #e2e8f0;">
+        <button type="button" class="btn btn-secondary" onclick="window.closeStockAdjustModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="window.submitStockAdjust()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER DETAILS MODAL -->
+  <div id="customer-modal" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h2>Customer Profile</h2>
+        <span class="close-btn" onclick="window.closeCustomerModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+          <h4 style="margin-bottom: 10px; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Account Details</h4>
+          <p class="field-title"><strong>Full Name:</strong> <span id="c-modal-name">N/A</span></p>
+          <p class="field-title"><strong>Email Address:</strong> <span id="c-modal-email">N/A</span></p>
+          <p class="field-title"><strong>Phone / Contact:</strong> <span id="c-modal-phone">N/A</span></p>
+          <p style="font-size: 14px;"><strong>Primary Address:</strong> <span id="c-modal-address">N/A</span></p>
+        </div>
+
+        <h4 style="margin-bottom: 10px; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Recent Transaction History</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="c-modal-orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCELLATION REASON MODAL -->
+  <div id="cancel-modal" class="modal">
+    <div class="modal-content card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2>Cancel Order</h2>
+        <span class="close-btn" onclick="window.closeCancelModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">Please provide a reason for cancelling this order. This will restore inventory stock levels.</p>
+        
+        <form id="cancel-form" onsubmit="window.submitOrderCancellation(event)">
+          <div class="form-group full mb-16">
+            <label for="cancel-reason-select">Cancellation Reason</label>
+            <select class="field-input" id="cancel-reason-select" onchange="window.onCancelReasonChange()">
+              <option value="" disabled selected>Select a reason...</option>
+              <option value="Out of stock">Out of stock</option>
+              <option value="Customer requested cancellation">Customer requested cancellation</option>
+              <option value="Unable to reach customer">Unable to reach customer</option>
+              <option value="Payment not received">Payment not received</option>
+              <option value="Duplicate order">Duplicate order</option>
+              <option value="Item no longer available">Item no longer available</option>
+              <option value="Cannot deliver to this address">Cannot deliver to this address</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group full mb-16" id="cancel-reason-other-group" style="display: none;">
+            <label for="cancel-reason-input">Tell the customer why</label>
+            <textarea class="field-input" id="cancel-reason-input" rows="3" maxlength="200" placeholder="Type the reason..."></textarea>
+          </div>
+
+          <div class="row-end-gap-8">
+            <button type="button" class="btn btn-secondary" onclick="window.closeCancelModal()">Discard</button>
+            <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN REVIEW MODAL -->
+  <div id="return-review-modal" class="modal">
+    <div class="modal-content card" style="max-width: 640px;">
+      <div class="modal-header">
+        <h2 id="rv-title">Review Return</h2>
+        <span class="close-btn" onclick="window.closeReturnReview()" role="button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="rv-body"></div>
+    </div>
+  </div>
+
+  <!-- SHIP ORDER MODAL -->
+  <div id="ship-modal" class="modal">
+    <div class="modal-content card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2>Ship Order</h2>
+        <span class="close-btn" onclick="window.closeShipModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">Enter shipping carrier and tracking number. The customer will be notified.</p>
+        
+        <form id="ship-form" onsubmit="window.submitOrderShipping(event)">
+          <div class="form-group full mb-16">
+            <label >Shipping Carrier</label>
+            <select class="field-input" id="ship-carrier-select" onchange="window.onShipCarrierChange()" required>
+              <option value="">Select a courier</option>
+              <option value="LBC Express">LBC Express</option>
+              <option value="J&T Express">J&amp;T Express</option>
+              <option value="JRS Express">JRS Express</option>
+              <option value="Flash Express">Flash Express</option>
+              <option value="Ninja Van">Ninja Van</option>
+              <option value="2GO Express">2GO Express</option>
+              <option value="Grab Express">Grab Express</option>
+              <option value="Lalamove">Lalamove</option>
+              <option value="Own rider">Own rider</option>
+              <option value="Other">Other (type below)</option>
+            </select>
+            <input class="field-input" type="text" id="ship-carrier-input" maxlength="60" placeholder="Courier name" style="display: none; margin-top: 8px;">
+          </div>
+
+          <div class="form-group full mb-16">
+            <label >Tracking Number</label>
+            <input class="field-input" type="text" id="ship-tracking-input" placeholder="e.g., PH123456789" required>
+          </div>
+
+          <div class="form-group full mb-16">
+            <label >Estimated Delivery</label>
+            <input class="field-input" type="date" id="ship-estimated-delivery-input" required>
+            <small style="color: #64748b;">The order completes by itself a few days after this date if the customer does not confirm it.</small>
+          </div>
+
+          <div class="row-end-gap-8">
+            <button type="button" class="btn btn-secondary" onclick="window.closeShipModal()">Discard</button>
+            <button type="submit" class="btn btn-primary">Ship Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT REJECTION REASON MODAL -->
+  <div id="reject-payment-modal" class="modal">
+    <div class="modal-content card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2>Reject Payment <span id="reject-payment-order" style="color: #64748b; font-size: 15px; font-weight: normal;"></span></h2>
+        <span class="close-btn" onclick="window.closeRejectPaymentModal()">&times;</span>
+      </div>
+
+      <div class="modal-body">
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 12px;">Tell the customer why the payment was rejected. They will see this on their order in the app.</p>
+
+        <form id="reject-payment-form" onsubmit="window.submitPaymentRejection(event)">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.setRejectPaymentReason('Reference number does not match our records')">Wrong reference no.</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.setRejectPaymentReason('Amount paid does not match the order total')">Wrong amount</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.setRejectPaymentReason('Screenshot is unclear or unreadable')">Unclear screenshot</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.setRejectPaymentReason('We did not receive the payment')">Payment not received</button>
+          </div>
+
+          <div class="form-group full mb-16">
+            <label >Reason for rejection</label>
+            <textarea class="field-input" id="reject-payment-reason" rows="3" required placeholder="e.g., The reference number does not match..."></textarea>
+          </div>
+
+          <div class="row-end-gap-8">
+            <button type="button" class="btn btn-secondary" onclick="window.closeRejectPaymentModal()">Back</button>
+            <button type="submit" class="btn btn-danger">Reject Payment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN REPLY MODAL -->
+  <div id="reply-modal" class="modal">
+    <div class="modal-content card" style="max-width: 460px;">
+      <div class="modal-header">
+        <h2>Reply to Customer Review</h2>
+        <span class="close-btn" onclick="window.closeReplyModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 4px;"><strong>Customer:</strong> <span id="reply-modal-customer">N/A</span></p>
+          <p style="font-size: 13px; color: #1e293b; margin: 0;"><strong>Review:</strong> "<span id="reply-modal-comment">N/A</span>"</p>
+        </div>
+        
+        <form id="reply-form" onsubmit="window.submitAdminReply(event)">
+          <div class="form-group full mb-16">
+            <label >Admin Response</label>
+            <textarea class="field-input" id="admin-reply-input" rows="3" required placeholder="Type your response to the customer..."></textarea>
+          </div>
+
+          <div class="row-end-gap-8">
+            <button type="button" class="btn btn-secondary" onclick="window.closeReplyModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Send Reply</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMO NOTIFICATION TOAST -->
+  <div id="promo-toast" style="display: none; position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #ffffff; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; transition: opacity 0.3s ease;">
+    <span id="promo-toast-msg">Success message</span>
+  </div>
+
+  <!-- CUSTOM PROMO CONFIRM MODAL -->
+  <div id="promo-confirm-modal" class="modal">
+    <div class="modal-content card" style="max-width: 380px;">
+      <div class="modal-header">
+        <h2>Confirm Action</h2>
+        <span class="close-btn" onclick="window.closePromoConfirm()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p id="promo-confirm-text" style="color: #475569; font-size: 14px; margin-bottom: 20px;">Are you sure you want to delete this promo code?</p>
+        <div class="row-end-gap-8">
+          <button type="button" class="btn btn-secondary" onclick="window.closePromoConfirm()">Cancel</button>
+          <button type="button" class="btn btn-danger" id="promo-confirm-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Entry Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

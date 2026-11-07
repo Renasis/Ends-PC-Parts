@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "972098400292",
+    "firebase_url": "https://it7-lab-act-default-rtdb.firebaseio.com",
+    "project_id": "it7-lab-act",
+    "storage_bucket": "it7-lab-act.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972098400292:android:11997cc8f9afa99ee2a8b1",
+        "android_client_info": {
+          "package_name": "com.example.it7_lab_act"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6lFSJQJVnJX2Ap9Z2E5ox1HOYYGXxH9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

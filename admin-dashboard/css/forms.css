@@ -1,0 +1,229 @@
+/* Tab Navigation Control */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Cards & Layout */
+.card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #eef2f7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  overflow-x: auto; /* wide tables scroll inside the card on small screens */
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #475569;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus-visible, textarea:focus-visible, select:focus-visible,
+input:focus, textarea:focus, select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+  outline: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.btn-primary { background-color: #2563eb; color: #fff; }
+.btn-primary:hover { background-color: #1d4ed8; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-warning { background-color: #eab308; color: #fff; }
+.btn-danger { background-color: #ef4444; color: #fff; }
+.btn-secondary { background-color: #e2e8f0; color: #475569; }
+.btn-success { background-color: #16a34a; color: #fff; }
+.btn-success:hover { background-color: #15803d; }
+.btn-danger:hover { background-color: #dc2626; }
+.btn-outline { background-color: #fff; color: #475569; border: 1px solid #cbd5e1; }
+.btn-outline:hover { background-color: #f1f5f9; }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+  padding: 12px;
+  background-color: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+tbody tr:hover td { background-color: #fafcff; }
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+/* Status Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-processing { background: #e0e7ff; color: #3730a3; }
+.badge-completed { background: #dcfce7; color: #166534; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+.badge-returned { background: #faf089; color: #92400e; }
+.badge-payment-rejected { background: #fee2e2; color: #991b1b; }
+
+/* Modal Overlay & Card Styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  border-radius: 12px;
+  animation: modalFadeIn 0.2s ease-in-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.close-btn {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.close-btn:hover {
+  color: #ef4444;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f1f5f9;
+}
+
+@media (max-width: 860px) {
+  .modal-content { width: 96%; max-height: 92vh; }
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Dashboard loading overlay */
+.dashboard-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.dashboard-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

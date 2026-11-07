@@ -1,0 +1,183 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      },
+      ".write": "root.child('admins').child(auth.uid).val() === true"
+    },
+    "products": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$productId": {
+        "reviews": {
+          "$reviewId": {
+            ".write": "(auth != null && $reviewId === auth.uid && !data.exists() && newData.child('userId').val() === auth.uid) || (root.child('staff').child(auth.uid).val() === true && !newData.exists())",
+            ".validate": "newData.hasChildren(['userId','userName','rating','comment','timestamp','orderId']) && newData.child('userId').val() === $reviewId && newData.child('userId').val() === auth.uid && newData.child('rating').isNumber() && newData.child('rating').val() >= 1 && newData.child('rating').val() <= 5 && newData.child('comment').isString() && newData.child('comment').val().length > 0 && newData.child('comment').val().length <= 2000 && newData.child('userName').isString() && newData.child('userName').val().length > 0 && newData.child('userName').val().length <= 100 && newData.child('orderId').isString() && newData.child('orderId').val().matches(/^[A-Za-z0-9_-]+$/) && root.child('transactions').child(newData.child('orderId').val()).child('userId').val() === auth.uid && root.child('transactions').child(newData.child('orderId').val()).child('status').val() === 'Completed' && (root.child('transactions').child(newData.child('orderId').val()).child('items').child('0').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('1').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('2').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('3').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('4').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('5').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('6').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('7').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('8').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('9').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('10').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('11').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('12').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('13').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('14').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('15').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('16').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('17').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('18').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('19').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('20').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('21').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('22').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('23').child('productId').val() === $productId || root.child('transactions').child(newData.child('orderId').val()).child('items').child('24').child('productId').val() === $productId)"
+          }
+        },
+        "productStock": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0"
+        },
+        "productName": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "productDescription": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.isString() && newData.val().length <= 2000"
+        },
+        "category": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.isString() && newData.val().length > 0 && newData.val().length <= 60"
+        },
+        "imageUrl": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.isString()"
+        },
+        "imageUrls": {
+          ".write": "root.child('staff').child(auth.uid).val() === true && newData.exists()"
+        }
+      }
+    },
+    "purchasedProducts": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$productId": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "root.child('admins').child(auth.uid).val() === true || (root.child('staff').child(auth.uid).val() === true && newData.val() === true)",
+          ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+    "productImages": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$productId": {
+        ".write": "root.child('staff').child(auth.uid).val() === true && newData.exists()"
+      }
+    },
+    "paymentProofs": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$orderId": {
+        ".write": "auth != null && !data.exists() && newData.parent().parent().child('transactions').child($orderId).child('userId').val() === auth.uid",
+        ".validate": "newData.isString() && newData.val().length < 1200000"
+      }
+    },
+    "settings": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true"
+    },
+    "promos": {
+      ".read": "(auth != null && root.child('admins').child(auth.uid).val() === true) || (auth != null && query.orderByKey === true && query.equalTo != null)",
+      ".write": "root.child('admins').child(auth.uid).val() === true"
+    },
+    "transactions": {
+      ".indexOn": [
+        "userId"
+      ],
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true) || (auth != null && query.orderByChild === 'userId' && query.equalTo === auth.uid)",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$orderId": {
+        ".read": "auth != null && data.child('userId').val() === auth.uid",
+        ".write": "auth != null && ((!data.exists() && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'Pending' && newData.child('paymentStatus').val() !== 'verified' && !newData.hasChild('stockDeducted')) || (data.exists() && data.child('userId').val() === auth.uid && (data.child('status').val() === 'Pending' || data.child('status').val() === 'Payment Rejected') && newData.child('status').val() === 'Cancelled' && newData.child('userId').val() === data.child('userId').val() && newData.child('subtotal').val() === data.child('subtotal').val() && newData.child('grandTotal').val() === data.child('grandTotal').val() && newData.child('discount').val() === data.child('discount').val() && newData.child('shippingFee').val() === data.child('shippingFee').val() && newData.child('paymentStatus').val() === data.child('paymentStatus').val() && newData.child('stockDeducted').val() === data.child('stockDeducted').val() && newData.child('refundStatus').val() === data.child('refundStatus').val() && newData.child('refundAmount').val() === data.child('refundAmount').val() && newData.child('returnedAt').val() === data.child('returnedAt').val() && newData.child('returnStatus').val() === data.child('returnStatus').val()) || (data.exists() && root.child('admins').child(auth.uid).val() === true && (data.child('status').val() === 'Pending' || data.child('status').val() === 'Payment Rejected') && newData.child('status').val() === 'Cancelled' && newData.child('userId').val() === data.child('userId').val() && newData.child('subtotal').val() === data.child('subtotal').val() && newData.child('grandTotal').val() === data.child('grandTotal').val()) || (data.exists() && data.child('userId').val() === auth.uid && data.child('status').val() === 'Completed' && data.child('returnedAt').val() === 0 && newData.child('returnReason').isString() && newData.child('returnReason').val().length > 0 && newData.child('returnedAt').isNumber() && newData.child('returnedAt').val() > 0 && newData.child('status').val() === data.child('status').val() && newData.child('grandTotal').val() === data.child('grandTotal').val() && (!newData.hasChild('returnImageUrl') || (newData.child('returnImageUrl').isString() && newData.child('returnImageUrl').val().length < 1000000)) && newData.child('returnReason').val().length <= 500 && newData.child('returnStatus').val() === 'requested' && newData.child('refundStatus').val() === data.child('refundStatus').val() && newData.child('refundAmount').val() === data.child('refundAmount').val() && newData.child('paymentStatus').val() === data.child('paymentStatus').val() && newData.child('stockDeducted').val() === data.child('stockDeducted').val() && newData.child('refundMethod').isString() && newData.child('refundMethod').val().length > 0 && newData.child('refundMethod').val().length <= 80 && newData.child('refundAccountName').isString() && newData.child('refundAccountName').val().length > 0 && newData.child('refundAccountName').val().length <= 100 && newData.child('refundAccountNumber').isString() && newData.child('refundAccountNumber').val().length > 0 && newData.child('refundAccountNumber').val().length <= 30 && !newData.hasChild('refundReference') && !newData.hasChild('returnAdminNote') && !newData.hasChild('refundedAt')) || (data.exists() && root.child('admins').child(auth.uid).val() === true && ((data.child('status').val() === 'Pending' && (newData.child('status').val() === 'Processing' || newData.child('status').val() === 'Cancelled')) || (data.child('status').val() === 'Processing' && (newData.child('status').val() === 'Shipping' || newData.child('status').val() === 'Cancelled')) || (data.child('status').val() === 'Shipping' && (newData.child('status').val() === 'Completed' || newData.child('status').val() === 'Cancelled'))) && newData.child('userId').val() === data.child('userId').val() && newData.child('subtotal').val() === data.child('subtotal').val() && newData.child('grandTotal').val() === data.child('grandTotal').val()) || (data.exists() && root.child('admins').child(auth.uid).val() === true && newData.child('returnReason').isString() && newData.child('refundAmount').isNumber() && newData.child('refundStatus').isString() && (!newData.hasChild('adminNotes') || newData.child('adminNotes').isString())) || (data.exists() && root.child('admins').child(auth.uid).val() === true && newData.child('shippingCarrier').isString() && newData.child('trackingNumber').isString() && newData.child('shippedAt').isNumber() && newData.child('estimatedDelivery').isNumber() && newData.child('status').val() === 'Shipping') || (data.exists() && data.child('userId').val() === auth.uid && data.child('status').val() === 'Shipping' && newData.child('status').val() === 'Completed' && newData.child('userId').val() === data.child('userId').val() && newData.child('subtotal').val() === data.child('subtotal').val() && newData.child('grandTotal').val() === data.child('grandTotal').val() && newData.child('shippingFee').val() === data.child('shippingFee').val() && newData.child('paymentStatus').val() === data.child('paymentStatus').val() && newData.child('stockDeducted').val() === data.child('stockDeducted').val() && newData.child('returnedAt').val() === data.child('returnedAt').val() && newData.child('refundStatus').val() === data.child('refundStatus').val() && newData.child('refundAmount').val() === data.child('refundAmount').val() && newData.child('completedAt').isNumber() && (newData.child('completedBy').val() === 'customer' || newData.child('completedBy').val() === 'auto')) || (data.exists() && root.child('staff').child(auth.uid).val() === true && newData.child('userId').val() === data.child('userId').val() && newData.child('subtotal').val() === data.child('subtotal').val() && newData.child('discount').val() === data.child('discount').val() && newData.child('shippingFee').val() === data.child('shippingFee').val() && newData.child('grandTotal').val() === data.child('grandTotal').val() && newData.child('returnedAt').val() === data.child('returnedAt').val() && newData.child('returnReason').val() === data.child('returnReason').val() && newData.child('returnStatus').val() === data.child('returnStatus').val() && newData.child('refundAmount').val() === data.child('refundAmount').val() && newData.child('refundStatus').val() === data.child('refundStatus').val() && newData.child('refundedAt').val() === data.child('refundedAt').val() && newData.child('refundReference').val() === data.child('refundReference').val() && (newData.child('status').val() === data.child('status').val() || (data.child('status').val() === 'Pending' && (newData.child('status').val() === 'Processing' || newData.child('status').val() === 'Cancelled' || newData.child('status').val() === 'Payment Rejected')) || (data.child('status').val() === 'Payment Rejected' && newData.child('status').val() === 'Cancelled') || (data.child('status').val() === 'Processing' && (newData.child('status').val() === 'Shipping' || newData.child('status').val() === 'Cancelled')) || (data.child('status').val() === 'Shipping' && (newData.child('status').val() === 'Completed' || newData.child('status').val() === 'Cancelled')))))",
+        ".validate": "data.exists() || (newData.hasChildren(['status','paymentMethod','paymentStatus','recipientName','phoneNumber','deliveryAddress','subtotal','discount','shippingFee','grandTotal','createdAt','cancellationReason']) && newData.child('subtotal').isNumber() && newData.child('discount').isNumber() && newData.child('shippingFee').isNumber() && newData.child('grandTotal').isNumber() && newData.child('createdAt').isNumber() && newData.child('cancellationReason').isString() && (!newData.hasChild('returnReason') || newData.child('returnReason').isString()) && (!newData.hasChild('returnedAt') || newData.child('returnedAt').isNumber()) && (!newData.hasChild('refundAmount') || newData.child('refundAmount').isNumber()) && (!newData.hasChild('refundStatus') || newData.child('refundStatus').isString()) && (!newData.hasChild('returnImageUrl') || newData.child('returnImageUrl').isString()) && (!newData.hasChild('returnStatus') || newData.child('returnStatus').isString()) && (!newData.hasChild('shippingCarrier') || newData.child('shippingCarrier').isString()) && (!newData.hasChild('trackingNumber') || newData.child('trackingNumber').isString()) && (!newData.hasChild('shippedAt') || newData.child('shippedAt').isNumber()) && (!newData.hasChild('estimatedDelivery') || newData.child('estimatedDelivery').isNumber()) && (!newData.hasChild('adminNotes') || newData.child('adminNotes').isString()) && newData.child('items').child('0').exists() && newData.child('subtotal').val() >= ((newData.child('items').child('0').exists() ? newData.child('items').child('0').child('price').val() * newData.child('items').child('0').child('quantity').val() : 0) + (newData.child('items').child('1').exists() ? newData.child('items').child('1').child('price').val() * newData.child('items').child('1').child('quantity').val() : 0) + (newData.child('items').child('2').exists() ? newData.child('items').child('2').child('price').val() * newData.child('items').child('2').child('quantity').val() : 0) + (newData.child('items').child('3').exists() ? newData.child('items').child('3').child('price').val() * newData.child('items').child('3').child('quantity').val() : 0) + (newData.child('items').child('4').exists() ? newData.child('items').child('4').child('price').val() * newData.child('items').child('4').child('quantity').val() : 0) + (newData.child('items').child('5').exists() ? newData.child('items').child('5').child('price').val() * newData.child('items').child('5').child('quantity').val() : 0) + (newData.child('items').child('6').exists() ? newData.child('items').child('6').child('price').val() * newData.child('items').child('6').child('quantity').val() : 0) + (newData.child('items').child('7').exists() ? newData.child('items').child('7').child('price').val() * newData.child('items').child('7').child('quantity').val() : 0) + (newData.child('items').child('8').exists() ? newData.child('items').child('8').child('price').val() * newData.child('items').child('8').child('quantity').val() : 0) + (newData.child('items').child('9').exists() ? newData.child('items').child('9').child('price').val() * newData.child('items').child('9').child('quantity').val() : 0) + (newData.child('items').child('10').exists() ? newData.child('items').child('10').child('price').val() * newData.child('items').child('10').child('quantity').val() : 0) + (newData.child('items').child('11').exists() ? newData.child('items').child('11').child('price').val() * newData.child('items').child('11').child('quantity').val() : 0) + (newData.child('items').child('12').exists() ? newData.child('items').child('12').child('price').val() * newData.child('items').child('12').child('quantity').val() : 0) + (newData.child('items').child('13').exists() ? newData.child('items').child('13').child('price').val() * newData.child('items').child('13').child('quantity').val() : 0) + (newData.child('items').child('14').exists() ? newData.child('items').child('14').child('price').val() * newData.child('items').child('14').child('quantity').val() : 0) + (newData.child('items').child('15').exists() ? newData.child('items').child('15').child('price').val() * newData.child('items').child('15').child('quantity').val() : 0) + (newData.child('items').child('16').exists() ? newData.child('items').child('16').child('price').val() * newData.child('items').child('16').child('quantity').val() : 0) + (newData.child('items').child('17').exists() ? newData.child('items').child('17').child('price').val() * newData.child('items').child('17').child('quantity').val() : 0) + (newData.child('items').child('18').exists() ? newData.child('items').child('18').child('price').val() * newData.child('items').child('18').child('quantity').val() : 0) + (newData.child('items').child('19').exists() ? newData.child('items').child('19').child('price').val() * newData.child('items').child('19').child('quantity').val() : 0) + (newData.child('items').child('20').exists() ? newData.child('items').child('20').child('price').val() * newData.child('items').child('20').child('quantity').val() : 0) + (newData.child('items').child('21').exists() ? newData.child('items').child('21').child('price').val() * newData.child('items').child('21').child('quantity').val() : 0) + (newData.child('items').child('22').exists() ? newData.child('items').child('22').child('price').val() * newData.child('items').child('22').child('quantity').val() : 0) + (newData.child('items').child('23').exists() ? newData.child('items').child('23').child('price').val() * newData.child('items').child('23').child('quantity').val() : 0) + (newData.child('items').child('24').exists() ? newData.child('items').child('24').child('price').val() * newData.child('items').child('24').child('quantity').val() : 0)) - 0.01 && newData.child('subtotal').val() <= ((newData.child('items').child('0').exists() ? newData.child('items').child('0').child('price').val() * newData.child('items').child('0').child('quantity').val() : 0) + (newData.child('items').child('1').exists() ? newData.child('items').child('1').child('price').val() * newData.child('items').child('1').child('quantity').val() : 0) + (newData.child('items').child('2').exists() ? newData.child('items').child('2').child('price').val() * newData.child('items').child('2').child('quantity').val() : 0) + (newData.child('items').child('3').exists() ? newData.child('items').child('3').child('price').val() * newData.child('items').child('3').child('quantity').val() : 0) + (newData.child('items').child('4').exists() ? newData.child('items').child('4').child('price').val() * newData.child('items').child('4').child('quantity').val() : 0) + (newData.child('items').child('5').exists() ? newData.child('items').child('5').child('price').val() * newData.child('items').child('5').child('quantity').val() : 0) + (newData.child('items').child('6').exists() ? newData.child('items').child('6').child('price').val() * newData.child('items').child('6').child('quantity').val() : 0) + (newData.child('items').child('7').exists() ? newData.child('items').child('7').child('price').val() * newData.child('items').child('7').child('quantity').val() : 0) + (newData.child('items').child('8').exists() ? newData.child('items').child('8').child('price').val() * newData.child('items').child('8').child('quantity').val() : 0) + (newData.child('items').child('9').exists() ? newData.child('items').child('9').child('price').val() * newData.child('items').child('9').child('quantity').val() : 0) + (newData.child('items').child('10').exists() ? newData.child('items').child('10').child('price').val() * newData.child('items').child('10').child('quantity').val() : 0) + (newData.child('items').child('11').exists() ? newData.child('items').child('11').child('price').val() * newData.child('items').child('11').child('quantity').val() : 0) + (newData.child('items').child('12').exists() ? newData.child('items').child('12').child('price').val() * newData.child('items').child('12').child('quantity').val() : 0) + (newData.child('items').child('13').exists() ? newData.child('items').child('13').child('price').val() * newData.child('items').child('13').child('quantity').val() : 0) + (newData.child('items').child('14').exists() ? newData.child('items').child('14').child('price').val() * newData.child('items').child('14').child('quantity').val() : 0) + (newData.child('items').child('15').exists() ? newData.child('items').child('15').child('price').val() * newData.child('items').child('15').child('quantity').val() : 0) + (newData.child('items').child('16').exists() ? newData.child('items').child('16').child('price').val() * newData.child('items').child('16').child('quantity').val() : 0) + (newData.child('items').child('17').exists() ? newData.child('items').child('17').child('price').val() * newData.child('items').child('17').child('quantity').val() : 0) + (newData.child('items').child('18').exists() ? newData.child('items').child('18').child('price').val() * newData.child('items').child('18').child('quantity').val() : 0) + (newData.child('items').child('19').exists() ? newData.child('items').child('19').child('price').val() * newData.child('items').child('19').child('quantity').val() : 0) + (newData.child('items').child('20').exists() ? newData.child('items').child('20').child('price').val() * newData.child('items').child('20').child('quantity').val() : 0) + (newData.child('items').child('21').exists() ? newData.child('items').child('21').child('price').val() * newData.child('items').child('21').child('quantity').val() : 0) + (newData.child('items').child('22').exists() ? newData.child('items').child('22').child('price').val() * newData.child('items').child('22').child('quantity').val() : 0) + (newData.child('items').child('23').exists() ? newData.child('items').child('23').child('price').val() * newData.child('items').child('23').child('quantity').val() : 0) + (newData.child('items').child('24').exists() ? newData.child('items').child('24').child('price').val() * newData.child('items').child('24').child('quantity').val() : 0)) + 0.01 && newData.child('shippingFee').val() >= ((root.child('settings').child('freeShippingMin').isNumber() && root.child('settings').child('freeShippingMin').val() > 0 && newData.child('subtotal').val() + 0.005 >= root.child('settings').child('freeShippingMin').val()) ? 0 : ((newData.child('shippingProvince').isString() && newData.child('shippingProvince').val().matches(/^[a-z0-9-]+$/) && root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').isNumber() && root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').val() >= 0) ? root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').val() : (root.child('settings').child('shippingFee').isNumber() && root.child('settings').child('shippingFee').val() >= 0 ? root.child('settings').child('shippingFee').val() : 0))) - 0.005 && newData.child('shippingFee').val() <= ((root.child('settings').child('freeShippingMin').isNumber() && root.child('settings').child('freeShippingMin').val() > 0 && newData.child('subtotal').val() + 0.005 >= root.child('settings').child('freeShippingMin').val()) ? 0 : ((newData.child('shippingProvince').isString() && newData.child('shippingProvince').val().matches(/^[a-z0-9-]+$/) && root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').isNumber() && root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').val() >= 0) ? root.child('settings').child('provinceFees').child(newData.child('shippingProvince').val()).child('fee').val() : (root.child('settings').child('shippingFee').isNumber() && root.child('settings').child('shippingFee').val() >= 0 ? root.child('settings').child('shippingFee').val() : 0))) + 0.005 && newData.child('discount').val() >= 0 && newData.child('discount').val() <= newData.child('subtotal').val() + 0.005 && newData.child('grandTotal').val() >= newData.child('subtotal').val() - newData.child('discount').val() + newData.child('shippingFee').val() - 0.01 && newData.child('grandTotal').val() <= newData.child('subtotal').val() - newData.child('discount').val() + newData.child('shippingFee').val() + 0.01 && (!newData.hasChild('promoCode') ? newData.child('discount').val() === 0 : (newData.child('promoCode').isString() && !newData.child('promoCode').val().contains('/') && root.child('promos').child(newData.child('promoCode').val()).child('discountValue').isNumber() && newData.child('subtotal').val() >= (root.child('promos').child(newData.child('promoCode').val()).child('minSpend').isNumber() ? root.child('promos').child(newData.child('promoCode').val()).child('minSpend').val() : 0) && newData.child('discount').val() <= (root.child('promos').child(newData.child('promoCode').val()).child('discountType').val() === 'percentage' ? newData.child('subtotal').val() * root.child('promos').child(newData.child('promoCode').val()).child('discountValue').val() / 100 : root.child('promos').child(newData.child('promoCode').val()).child('discountValue').val()) + 0.01)))",
+        "items": {
+          "$i": {
+            ".validate": "$i.matches(/^([0-9]|1[0-9]|2[0-4])$/) && newData.hasChildren(['productId','productName','quantity','price']) && newData.child('productId').isString() && root.child('products').child(newData.child('productId').val()).exists() && newData.child('quantity').isNumber() && newData.child('quantity').val() >= 1 && newData.child('quantity').val() <= 99 && newData.child('quantity').val() % 1 === 0 && root.child('products').child(newData.child('productId').val()).child('productStock').isNumber() && newData.child('quantity').val() <= root.child('products').child(newData.child('productId').val()).child('productStock').val() && newData.child('price').isNumber() && root.child('products').child(newData.child('productId').val()).child('productPrice').isNumber() && newData.child('price').val() >= root.child('products').child(newData.child('productId').val()).child('productPrice').val() - 0.005 && newData.child('price').val() <= root.child('products').child(newData.child('productId').val()).child('productPrice').val() + 0.005"
+          }
+        }
+      }
+    },
+    "users": {
+      ".read": "root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.val() !== null && (!newData.hasChild('email') || (newData.child('email').isString() && newData.child('email').val().length <= 254)) && (!newData.hasChild('name') || (newData.child('name').isString() && newData.child('name').val().length <= 100)) && (!newData.hasChild('phoneNumber') || (newData.child('phoneNumber').isString() && newData.child('phoneNumber').val().length <= 20)) && (!newData.hasChild('deliveryAddress') || (newData.child('deliveryAddress').isString() && newData.child('deliveryAddress').val().length <= 500))"
+      }
+    },
+    "chats": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      ".write": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "messages": {
+          "$messageId": {
+            ".write": "auth != null && !data.exists() && newData.exists() && (auth.uid === $uid || (root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true))",
+            ".validate": "newData.val() !== null && newData.hasChildren(['message','senderId','senderName','isAdmin','timestamp']) && newData.child('message').isString() && newData.child('message').val().length > 0 && newData.child('message').val().length <= 1000 && newData.child('senderId').isString() && newData.child('senderId').val() === auth.uid && newData.child('senderName').isString() && newData.child('isAdmin').isBoolean() && (newData.child('isAdmin').val() !== true || (root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)) && newData.child('timestamp').isNumber()"
+          }
+        }
+      }
+    },
+    "chatThreads": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && newData.exists() && (auth.uid === $uid || (root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true))",
+        "customerName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "lastMessage": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "lastTimestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "lastFromAdmin": {
+          ".validate": "newData.isBoolean() && (newData.val() === false || (root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true))"
+        },
+        "customerReadAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "adminReadAt": {
+          ".validate": "newData.isNumber() && (root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "notifications": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$notificationId": {
+          ".write": "auth != null && auth.uid === $uid && data.exists() && (!newData.exists() || (newData.child('title').val() === data.child('title').val() && newData.child('message').val() === data.child('message').val() && newData.child('type').val() === data.child('type').val() && newData.child('timestamp').val() === data.child('timestamp').val()))",
+          ".validate": "newData.val() !== null && newData.hasChildren(['title','message','type','timestamp','read']) && newData.child('title').isString() && newData.child('title').val().length <= 100 && newData.child('message').isString() && newData.child('message').val().length <= 500 && newData.child('type').isString() && (newData.child('type').val() === 'order' || newData.child('type').val() === 'price' || newData.child('type').val() === 'system') && newData.child('read').isBoolean() && newData.child('timestamp').isNumber()"
+        }
+      }
+    },
+    "adminLogs": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$logId": {
+        ".write": "root.child('staff').child(auth.uid).val() === true && !data.exists()"
+      }
+    },
+    "stockMovements": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('staff').child(auth.uid).val() === true)",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$movementId": {
+        ".write": "root.child('admins').child(auth.uid).val() === true || (root.child('staff').child(auth.uid).val() === true && !data.exists())",
+        ".validate": "newData.val() !== null && newData.hasChildren(['productId','productName','type','quantity','previousStock','newStock','reason','category','notes','performedBy','performedAt']) && newData.child('productId').isString() && newData.child('productName').isString() && newData.child('type').isString() && (newData.child('type').val() === 'in' || newData.child('type').val() === 'out') && newData.child('quantity').isNumber() && newData.child('quantity').val() >= 1 && newData.child('previousStock').isNumber() && newData.child('newStock').isNumber() && newData.child('reason').isString() && newData.child('reason').val().length > 0 && newData.child('category').isString() && newData.child('notes').isString() && newData.child('performedBy').isString() && newData.child('performedAt').isNumber()"
+      }
+    },
+    "staff": {
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isBoolean()"
+      }
+    },
+    "team": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name','email','role']) && newData.child('name').isString() && newData.child('name').val().length <= 100 && newData.child('email').isString() && newData.child('email').val().length <= 254 && (newData.child('role').val() === 'admin' || newData.child('role').val() === 'staff')"
+      }
+    }
+  }
+}
